@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>किसान सेतु (Kisan Setu) - Comprehensive Agri Super-App</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <style>
+    :root {
+      --primary: #114b37;
+      --primary-hover: #166046;
+      --primary-light: #e8f5e9;
+      --accent: #16a34a;
+      --accent-soft: #dcfce7;
+      --gold: #d97706;
+      --gold-soft: #fef3c7;
+      --danger: #dc2626;
+      --danger-soft: #fee2e2;
+      --info: #0284c7;
+      --info-soft: #e0f2fe;
+      --purple: #7c3aed;
+      --purple-soft: #ede9fe;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+      --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Mukta', 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text-main); line-height: 1.5; }
+
+    /* AUTH OVERLAY */
+    #authOverlay {
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 1rem;
+    }
+    .auth-card {
+      background: var(--surface); width: 100%; max-width: 420px; border-radius: 20px;
+      padding: 2rem 1.8rem; box-shadow: var(--shadow-lg); text-align: center; border: 1px solid var(--border);
+    }
+    .auth-logo { font-size: 1.8rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 0.2rem; }
+    .role-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 1.1rem 0; }
+    .role-btn {
+      padding: 0.75rem 0.5rem; border-radius: var(--radius-md); border: 2px solid transparent; font-family: inherit; font-size: 0.95rem;
+      font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+      background: #f1f5f9; color: var(--text-muted); transition: 0.2s;
+    }
+    .role-btn.active.farmer { background: var(--accent-soft); color: #166534; border-color: #86efac; }
+    .role-btn.active.buyer { background: var(--gold-soft); color: #854d0e; border-color: #fde047; }
+    
+    .phone-input-group { display: flex; gap: 6px; margin-bottom: 0.8rem; }
+    .country-select { width: 115px; padding: 0.75rem 0.4rem; border-radius: var(--radius-md); border: 1.5px solid var(--border); font-family: inherit; font-weight: 700; background: #f8fafc; outline: none; font-size: 0.88rem; }
+    .input-field { width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-md); border: 1.5px solid var(--border); font-family: inherit; outline: none; transition: 0.2s; background: #fff; font-size: 0.95rem; }
+    .input-field:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(17, 75, 55, 0.12); }
+    .btn-auth-submit { width: 100%; padding: 0.85rem; border-radius: var(--radius-md); border: none; font-weight: 800; color: white; background: var(--primary); cursor: pointer; font-size: 1rem; transition: 0.2s; }
+    .btn-auth-submit:hover { background: var(--primary-hover); }
+
+    /* HEADER & USER PROFILE DROPDOWN */
+    header { background: #ffffff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm); }
+    .navbar { max-width: 1240px; margin: 0 auto; padding: 0.75rem 1.2rem; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .logo { display: flex; align-items: center; gap: 8px; font-size: 1.35rem; font-weight: 800; color: var(--primary); text-decoration: none; }
+    .sih-badge { background: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 800; border: 1px solid #fca5a5; }
+    
+    .user-profile-box { position: relative; }
+    .user-badge {
+      display: flex; align-items: center; gap: 8px; background: var(--accent-soft); padding: 0.4rem 0.9rem;
+      border-radius: 50px; font-size: 0.86rem; font-weight: 700; color: #166534; cursor: pointer;
+      border: 1px solid #86efac; transition: 0.2s;
+    }
+    .user-badge:hover { background: #bbf7d0; }
+    
+    .user-dropdown-menu {
+      display: none; position: absolute; right: 0; top: 115%; width: 220px; background: #ffffff;
+      border-radius: var(--radius-md); box-shadow: var(--shadow-lg); border: 1px solid var(--border);
+      overflow: hidden; z-index: 200; animation: fadeIn 0.15s ease-in-out;
+    }
+    .user-dropdown-menu.show { display: block; }
+    .dropdown-header { padding: 0.75rem 1rem; background: #f8fafc; border-bottom: 1px solid var(--border); font-size: 0.82rem; color: var(--text-muted); }
+    .dropdown-item {
+      display: flex; align-items: center; gap: 10px; padding: 0.75rem 1rem; font-size: 0.9rem;
+      font-weight: 700; color: var(--text-main); text-decoration: none; cursor: pointer; transition: 0.2s;
+      border: none; background: transparent; width: 100%; text-align: left;
+    }
+    .dropdown-item:hover { background: #f1f5f9; }
+    .dropdown-item.danger { color: var(--danger); border-top: 1px solid var(--border); }
+    .dropdown-item.danger:hover { background: var(--danger-soft); }
+
+    /* NAVIGATION TABS */
+    .nav-tabs-bar { background: #ffffff; border-bottom: 1px solid var(--border); position: sticky; top: 56px; z-index: 90; }
+    .nav-tabs { max-width: 1240px; margin: 0 auto; display: flex; gap: 6px; padding: 0.5rem 1.2rem; overflow-x: auto; scrollbar-width: none; }
+    .nav-tabs::-webkit-scrollbar { display: none; }
+    .nav-item-btn {
+      padding: 0.55rem 0.95rem; border-radius: var(--radius-md); border: 1px solid transparent; background: transparent;
+      font-family: inherit; font-size: 0.9rem; font-weight: 700; color: var(--text-muted); cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; transition: 0.2s;
+    }
+    .nav-item-btn:hover { background: #f1f5f9; color: var(--text-main); }
+    .nav-item-btn.active { background: var(--primary); color: #ffffff; }
+
+    /* MAIN CONTAINER & SECTIONS */
+    .app-container { max-width: 1240px; margin: 1.2rem auto 3rem; padding: 0 1.2rem; }
+    .tab-section { display: none; }
+    .tab-section.active { display: block; animation: fadeIn 0.2s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* STATS & IMPACT BANNERS */
+    .sih-impact-banner {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #86efac;
+      border-radius: var(--radius-lg); padding: 1.2rem 1.4rem; margin-bottom: 1.2rem; display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; align-items: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .impact-stat { background: #ffffff; border-radius: var(--radius-md); padding: 0.75rem 1rem; border: 1px solid #bbf7d0; text-align: center; }
+    .impact-stat h3 { font-size: 1.35rem; color: #166534; font-weight: 800; }
+    .impact-stat p { font-size: 0.82rem; color: var(--text-muted); }
+
+    /* CLIMATE STRIP */
+    .climate-strip {
+      background: #ffffff; border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+      border-radius: var(--radius-lg); padding: 0.75rem 1.2rem; display: flex; flex-wrap: wrap; align-items: center;
+      justify-content: space-between; gap: 12px; margin-bottom: 1.2rem;
+    }
+    .climate-meta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .climate-item { display: flex; align-items: center; gap: 6px; font-size: 0.88rem; font-weight: 700; color: #166534; }
+
+    /* GRID & CARDS */
+    .section-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.2rem; }
+    .panel-card { background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow-md); padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; }
+    .panel-card-full { grid-column: 1 / -1; }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.9rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.6rem; }
+    .panel-title { font-size: 1.05rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+
+    /* TABLES */
+    .structured-table-box { overflow-x: auto; max-height: 380px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius-md); }
+    .app-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; text-align: left; }
+    .app-table th, .app-table td { padding: 0.65rem 0.85rem; border-bottom: 1px solid var(--border); }
+    .app-table th { background: #f8fafc; color: var(--text-muted); position: sticky; top: 0; z-index: 2; font-weight: 700; }
+    .badge-status { display: inline-block; padding: 2px 7px; border-radius: var(--radius-sm); font-size: 0.78rem; font-weight: 800; }
+    .badge-live { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .badge-sold { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; text-decoration: line-through; }
+    .badge-savings { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; padding: 2px 6px; border-radius: var(--radius-sm); font-weight: 800; font-size: 0.76rem; }
+    .badge-grievance { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; padding: 2px 6px; border-radius: var(--radius-sm); font-weight: 800; font-size: 0.76rem; }
+    .badge-land { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 2px 6px; border-radius: var(--radius-sm); font-weight: 800; font-size: 0.76rem; }
+
+    /* BUTTONS */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0.65rem 1rem; border-radius: var(--radius-md); font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer; background: var(--primary); color: #fff; transition: 0.2s; }
+    .btn:hover { background: var(--primary-hover); }
+    .btn-sm { padding: 4px 8px; font-size: 0.8rem; border-radius: var(--radius-sm); }
+    .btn-action-video { background: #ede9fe; color: #6d28d9; border: 1px solid #c4b5fd; text-decoration: none; }
+    .btn-action-slip { background: #0284c7; color: #fff; }
+
+    /* MODALS */
+    .app-modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 10000; align-items: center; justify-content: center; padding: 1rem; }
+    .app-modal-body { background: #ffffff; border-radius: 18px; width: 100%; max-width: 500px; padding: 1.4rem; box-shadow: var(--shadow-lg); border: 1px solid var(--border); }
+    .receipt-box { border: 2px dashed var(--primary); background: #f8fafc; border-radius: var(--radius-md); padding: 0.9rem; font-size: 0.88rem; text-align: left; }
+
+    /* CADASTRAL MAP VIEW */
+    .cadastral-map-view {
+      position: relative; width: 100%; height: 250px; background: #ecfdf5; border: 1.5px solid #a7f3d0;
+      border-radius: var(--radius-md); overflow: hidden; display: flex; align-items: center; justify-content: center;
+    }
+    .khasra-plot {
+      width: 140px; height: 110px; background: rgba(34, 197, 94, 0.25); border: 2.5px solid #16a34a;
+      position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.85rem; color: #14532d;
+    }
+    .neighbor-plot {
+      position: absolute; background: rgba(148, 163, 184, 0.15); border: 1px dashed #94a3b8;
+      display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #64748b;
+    }
+
+    /* UPLOAD & METRIC TRACKS */
+    .upload-area { border: 2px dashed #86efac; background: #f0fdf4; border-radius: var(--radius-md); padding: 1.1rem; text-align: center; cursor: pointer; display: block; margin-bottom: 0.8rem; }
+    .upload-area input { display: none; }
+    .preview-thumb { max-width: 130px; max-height: 110px; border-radius: var(--radius-sm); display: none; margin: 8px auto 0; object-fit: cover; }
+    .moisture-track { width: 100%; height: 12px; background: #e2e8f0; border-radius: 50px; overflow: hidden; margin: 8px 0; }
+    .moisture-fill { height: 100%; width: 62%; background: linear-gradient(90deg, #f59e0b, #22c55e, #0284c7); }
+
+    /* CHAT & VOICE AGENTS */
+    .chat-container { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0.9rem; height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 0.8rem; }
+    .chat-bubble { padding: 0.65rem 0.85rem; border-radius: var(--radius-md); font-size: 0.9rem; max-width: 85%; }
+    .chat-user { align-self: flex-end; background: var(--primary); color: #ffffff; }
+    .chat-bot { align-self: flex-start; background: #ffffff; border: 1px solid var(--border); }
+    .mic-btn { background: #dc2626; width: 44px; height: 44px; border-radius: var(--radius-md); border: none; color: #fff; cursor: pointer; }
+    .mic-btn.active { background: #16a34a; animation: pulse 1s infinite; }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
+  </style>
+</head>
+<body>
+
+  <!-- 1. AUTH OVERLAY -->
+  <div id="authOverlay">
+    <div class="auth-card">
+      <div class="auth-logo"><i class="fa-solid fa-seedling" style="color:#22c55e;"></i> किसान सेतु</div>
+      <span class="sih-badge">SIH26033 & SIH26014 • Unified Agri Super-App</span>
+      <p style="font-size:0.86rem; color:var(--text-muted); margin:0.6rem 0 1rem;">सुरक्षित OTP व मोबाइल सत्यापन मंच</p>
+      
+      <div class="role-toggle">
+        <button type="button" class="role-btn farmer active" id="btnRoleFarmer" onclick="selectAuthRole('farmer')">
+          <i class="fa-solid fa-wheat-awn"></i> किसान (विक्रेता)
+        </button>
+        <button type="button" class="role-btn buyer" id="btnRoleBuyer" onclick="selectAuthRole('buyer')">
+          <i class="fa-solid fa-cart-shopping"></i> स्थानीय खरीदार
+        </button>
+      </div>
+
+      <!-- STEP 1: PHONE NUMBER -->
+      <div id="authStepPhone">
+        <div class="phone-input-group">
+          <select id="authCountryCode" class="country-select" onchange="updatePhoneValidationRule()">
+            <option value="+91" selected>🇮🇳 भारत (+91)</option>
+            <option value="+1">🇺🇸 USA (+1)</option>
+            <option value="+44">🇬🇧 UK (+44)</option>
+            <option value="+971">🇦🇪 UAE (+971)</option>
+          </select>
+          <input type="tel" id="authPhone" class="input-field" placeholder="10-अंकों का मोबाइल नंबर" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required />
+        </div>
+        <button type="button" id="btnSendOtp" class="btn-auth-submit" onclick="sendAuthOtp()"><i class="fa-solid fa-paper-plane"></i> OTP प्राप्त करें</button>
+      </div>
+
+      <!-- STEP 2: OTP VERIFICATION -->
+      <div id="authStepOtp" style="display:none;">
+        <p style="font-size:0.84rem; color:var(--text-muted); margin-bottom:8px;">
+          नंबर <strong id="dispTargetPhone">+91-xxxxxxxxxx</strong> पर SMS द्वारा भेजा गया 4-अंकों का OTP दर्ज करें:
+        </p>
+        <input type="text" id="authOtpInput" class="input-field" placeholder="••••" maxlength="4" style="letter-spacing:10px; font-size:1.4rem; text-align:center; font-weight:800;" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required />
+        <button type="button" class="btn-auth-submit" style="margin-top:8px;" onclick="verifyAndLogin()"><i class="fa-solid fa-circle-check"></i> OTP सत्यापित करें व प्रवेश करें</button>
+        <p style="margin-top:10px;">
+          <a href="#" onclick="sendAuthOtp()" style="font-size:0.82rem; color:var(--primary); font-weight:700; text-decoration:underline;">OTP दोबारा भेजें</a> | 
+          <a href="#" onclick="backToPhoneStep()" style="font-size:0.82rem; color:var(--text-muted); text-decoration:none;">नंबर बदलें</a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PASSWORD RESET MODAL -->
+  <div id="resetPasswordModal" class="app-modal" onclick="if(event.target===this) closeResetPasswordModal()">
+    <div class="app-modal-body">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
+        <h4 style="color:var(--primary); font-weight:800;"><i class="fa-solid fa-key"></i> पासवर्ड / पिन रीसेट करें</h4>
+        <button onclick="closeResetPasswordModal()" style="background:none; border:none; font-size:1.4rem; cursor:pointer;">&times;</button>
+      </div>
+      
+      <div id="resetStep1">
+        <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:10px;">
+          सत्यापन के लिए आपके पंजीकृत नंबर (<strong id="resetTargetPhone"></strong>) पर SMS द्वारा OTP भेजा जाएगा।
+        </p>
+        <button type="button" class="btn" style="width:100%;" onclick="sendResetOtp()"><i class="fa-solid fa-shield-halved"></i> सुरक्षा OTP भेजें</button>
+      </div>
+
+      <div id="resetStep2" style="display:none;">
+        <p style="font-size:0.84rem; color:var(--text-muted); margin-bottom:6px;">SMS में आया 4-अंकों का OTP डालें:</p>
+        <input type="text" id="resetOtpInput" class="input-field" placeholder="••••" maxlength="4" style="letter-spacing:6px; font-weight:800; text-align:center; margin-bottom:0.8rem;" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+        
+        <p style="font-size:0.84rem; color:var(--text-muted); margin-bottom:6px;">नया पासवर्ड / पिन दर्ज करें:</p>
+        <input type="password" id="newPasswordInput" class="input-field" placeholder="नया पासवर्ड" style="margin-bottom:0.8rem;" />
+        
+        <p style="font-size:0.84rem; color:var(--text-muted); margin-bottom:6px;">नए पासवर्ड की पुष्टि करें:</p>
+        <input type="password" id="confirmPasswordInput" class="input-field" placeholder="दोबारा पासवर्ड दर्ज करें" style="margin-bottom:1rem;" />
+
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn" style="flex:1;" onclick="submitNewPassword()"><i class="fa-solid fa-check"></i> पासवर्ड अपडेट करें</button>
+          <button type="button" class="btn" style="background:#e2e8f0; color:var(--text-main);" onclick="closeResetPasswordModal()">रद्द करें</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIDEO MODAL -->
+  <div id="videoModal" class="app-modal" onclick="if(event.target===this) closeVideoModal()">
+    <div class="app-modal-body" style="text-align:center;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+        <h4 id="videoModalTitle" style="color:var(--primary); font-weight:800;">📹 फ़सल क्वालिटी लाइव 10s वीडियो</h4>
+        <button onclick="closeVideoModal()" style="background:none; border:none; font-size:1.4rem; cursor:pointer;">&times;</button>
+      </div>
+      
+      <div id="inbuiltVideoScreen" style="width:100%; height:220px; background:#0f172a; border-radius:var(--radius-md); display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; overflow:hidden; border:2px solid #22c55e;">
+        <div id="videoAnimIcon" style="font-size:3.5rem; color:#22c55e; margin-bottom:6px; animation: pulse 1.2s infinite;">🌾</div>
+        <h3 id="videoAnimCrop" style="color:#ffffff; font-weight:800; font-size:1.2rem;">हरी मटर (A-Grade)</h3>
+        <p style="color:#86efac; font-size:0.82rem; font-weight:700;">● LIVE VERIFIED CROP RECORDING</p>
+        <div style="position:absolute; bottom:10px; left:12px; right:12px; display:flex; justify-content:space-between; font-size:0.75rem; color:#94a3b8;">
+          <span>गुणवत्ता: 98.4% शुद्ध</span>
+          <span id="videoTimer">00:08 / 00:10</span>
+        </div>
+      </div>
+      <p id="videoModalMeta" style="font-size:0.82rem; color:var(--text-muted); margin-top:0.6rem;"></p>
+    </div>
+  </div>
+
+  <!-- RECEIPT MODAL -->
+  <div id="receiptModal" class="app-modal" onclick="if(event.target===this) closeReceiptModal()">
+    <div class="app-modal-body">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
+        <h4 style="color:var(--primary); font-weight:800;"><i class="fa-solid fa-handshake"></i> शून्य-कमीशन सीधा सौदा प्रमाणपत्र</h4>
+        <button onclick="closeReceiptModal()" style="background:none; border:none; font-size:1.4rem; cursor:pointer;">&times;</button>
+      </div>
+      <div class="receipt-box" id="receiptPrintArea">
+        <div style="text-align:center; border-bottom:1.5px dashed var(--primary); padding-bottom:6px; margin-bottom:8px;">
+          <h4 style="color:var(--primary);">🌾 किसान सेतु - प्रत्यक्ष व्यापार रसीद</h4>
+          <small style="color:#166534; font-weight:700;">SIH26033: Direct Farmer-to-Retailer Verification</small>
+        </div>
+        <p><strong>सौदा आईडी:</strong> <span id="recId">KS-99214</span> | <strong>दिनांक:</strong> <span id="recDate"></span></p>
+        <p><strong>फ़सल:</strong> <span id="recCrop">ताज़ा हरी मटर</span> | <strong>मात्रा:</strong> <span id="recQty">40 क्विंटल</span></p>
+        <p><strong>तय सीधा भाव:</strong> <strong id="recPrice" style="color:#166534;">₹4,100 / क्विंटल</strong></p>
+        <p><strong>किसान विवरण:</strong> <span id="recFarmer">रामेश्वर दयाल - दनकौर</span></p>
+        <p><strong>खरीदार / व्यापारी:</strong> <span id="recBuyer">स्थानीय प्रमाणित व्यापारी (दादरी)</span></p>
+        <hr style="border:0; border-top:1px solid #cbd5e1; margin:8px 0;">
+        <div style="background:#ecfdf5; border:1px solid #a7f3d0; padding:6px 10px; border-radius:var(--radius-sm); font-size:0.82rem; color:#065f46;">
+          💰 <strong>बिचौलिया बचत:</strong> ₹0 कमीशन काटा गया। किसान को प्रति क्विंटल ₹350 से ₹450 की शुद्ध बचत हुई।
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:1rem;">
+        <button class="btn btn-action-slip" style="flex:1;" onclick="window.print()"><i class="fa-solid fa-print"></i> रसीद प्रिंट करें</button>
+        <button class="btn" style="background:#e2e8f0; color:var(--text-main);" onclick="closeReceiptModal()">बंद करें</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIP MODAL -->
+  <div id="slipModal" class="app-modal" onclick="if(event.target===this) closeSlipModal()">
+    <div class="app-modal-body">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
+        <h4 style="color:var(--primary); font-weight:800;"><i class="fa-solid fa-file-prescription"></i> डिजिटल कृषि पर्ची</h4>
+        <button onclick="closeSlipModal()" style="background:none; border:none; font-size:1.4rem; cursor:pointer;">&times;</button>
+      </div>
+      <div class="receipt-box">
+        <div style="text-align:center; border-bottom:1.5px dashed var(--primary); padding-bottom:6px; margin-bottom:8px;">
+          <h4 style="color:var(--primary);">🌾 किसान सेतु - AI विज़न डायग्नोस्टिक्स</h4>
+          <small style="color:var(--text-muted);">Smart India Hackathon 2026 | Doctor Prescription</small>
+        </div>
+        <p><strong>दिनांक:</strong> <span id="slipDate"></span> | <strong>सत्यापित फ़ोन:</strong> <span id="slipFarmer"></span></p>
+        <hr style="border:0; border-top:1px solid #cbd5e1; margin:6px 0;">
+        <p><strong>जांच का प्रकार:</strong> <span id="slipDiagType">पत्ती रोग निदान</span></p>
+        <p><strong>पहचाना गया रोग:</strong> <span id="slipCondition">चूर्णिल आसिता (Powdery Mildew)</span></p>
+        <p><strong>सटीक दवा व खुराक:</strong> <span id="slipPrescription" style="color:#166534; font-weight:800;">सल्फर 80% WP (2 g/L पानी)</span></p>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:1rem;">
+        <button class="btn btn-action-slip" style="flex:1;" onclick="window.print()"><i class="fa-solid fa-print"></i> पर्ची प्रिंट / PDF करें</button>
+        <button class="btn" style="background:#e2e8f0; color:var(--text-main);" onclick="closeSlipModal()">बंद करें</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRIEVANCE SLIP MODAL -->
+  <div id="grievanceSlipModal" class="app-modal" onclick="if(event.target===this) closeGrievanceSlipModal()">
+    <div class="app-modal-body">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
+        <h4 style="color:#b91c1c; font-weight:800;"><i class="fa-solid fa-landmark-flag"></i> सरकारी शिकायत पावती पत्र</h4>
+        <button onclick="closeGrievanceSlipModal()" style="background:none; border:none; font-size:1.4rem; cursor:pointer;">&times;</button>
+      </div>
+      <div class="receipt-box" style="border-color:#b91c1c; background:#fffaf0;">
+        <div style="text-align:center; border-bottom:1.5px dashed #b91c1c; padding-bottom:6px; margin-bottom:8px;">
+          <h4 style="color:#b91c1c;">🏛️ राष्ट्रीय उपभोक्ता एवं ग्रामीण समाधान सेल</h4>
+          <small style="color:var(--text-muted);">Ministry of Consumer Affairs & Rural Development Portal</small>
+        </div>
+        <p><strong>शिकायत ट्रैकिंग नंबर:</strong> <strong id="grvSlipId" style="color:#b91c1c;">GRV-2026-UP449</strong></p>
+        <p><strong>दिनांक / समय:</strong> <span id="grvSlipDate"></span></p>
+        <p><strong>किसान का नाम व फ़ोन:</strong> <span id="grvSlipFarmer"></span></p>
+        <p><strong>गाँव / क्षेत्र:</strong> <span id="grvSlipLoc"></span></p>
+        <p><strong>शिकायत का विषय:</strong> <span id="grvSlipCategory"></span></p>
+        <hr style="border:0; border-top:1px solid #cbd5e1; margin:6px 0;">
+        <p><strong>दर्ज विवरण:</strong></p>
+        <div id="grvSlipDetails" style="font-size:0.84rem; background:#ffffff; padding:6px; border:1px solid #e2e8f0; border-radius:var(--radius-sm); margin:4px 0 8px;"></div>
+        
+        <p><strong>संलग्न डिजिटल सबूत (Photo Proof):</strong></p>
+        <div style="text-align:center; margin:6px 0;">
+          <div style="width:100%; height:90px; background:#fee2e2; border:1px dashed #ef4444; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; color:#991b1b; font-weight:700; font-size:0.85rem;">
+            📸 डिजिटल रसीद व कटौती सबूत संलग्न
+          </div>
+        </div>
+
+        <div style="background:#fef2f2; border:1px solid #fca5a5; padding:6px 10px; border-radius:var(--radius-sm); font-size:0.8rem; color:#991b1b;">
+          ⚖️ <strong>स्थिति:</strong> संबंधित जिला कृषि अधिकारी (DAO) को अग्रेषित। 72 घंटे में समाधान।
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:1rem;">
+        <button class="btn" style="flex:1; background:#b91c1c;" onclick="window.print()"><i class="fa-solid fa-print"></i> शिकायत पर्ची प्रिंट करें</button>
+        <button class="btn" style="background:#e2e8f0; color:var(--text-main);" onclick="closeGrievanceSlipModal()">बंद करें</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LAND RECORD MODAL -->
+  <div id="landRecordModal" class="app-modal" onclick="if(event.target===this) closeLandRecordModal()">
+    <div class="app-modal-body">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
+        <h4 style="color:#0369a1; font-weight:800;"><i class="fa-solid fa-map-location-dot"></i> प्रमाणित डिजिटल खतौनी (RoR Record)</h4>
+        <button onclick="closeLandRecordModal()" style="background:none; border:none; font-size:1.4rem; cursor:pointer;">&times;</button>
+      </div>
+      <div class="receipt-box" style="border-color:#0284c7; background:#f0f9ff;">
+        <div style="text-align:center; border-bottom:1.5px dashed #0284c7; padding-bottom:6px; margin-bottom:8px;">
+          <h4 style="color:#0369a1;">🏛️ राजस्व विभाग (भूलेख एवं कैडस्ट्रल पोर्टल)</h4>
+          <small style="color:var(--text-muted);">SIH26014: Digital Land Governance & Ownership Verification</small>
+        </div>
+        <p><strong>खसरा / गाटा संख्या:</strong> <strong id="recLandKhasra" style="color:#0284c7;">412/1</strong> | <strong>खाता:</strong> <span id="recLandKhata">00184</span></p>
+        <p><strong>खातेदार:</strong> <strong id="recLandOwner">रामेश्वर दयाल पुत्र चेतराम</strong></p>
+        <p><strong>गाँव / तहसील:</strong> <span id="recLandVillage">दनकौर, तहसील दादरी (ग्रेटर नोएडा)</span></p>
+        <p><strong>कुल रकबा:</strong> <strong id="recLandArea" style="color:#166534;">0.8450 हेक्टेयर (3.34 बीघा)</strong></p>
+        <hr style="border:0; border-top:1px solid #cbd5e1; margin:6px 0;">
+        <p><strong>भूमि उपयोग:</strong> <span id="recLandCrop">कृषि भूमि (हरी मटर / रबी)</span></p>
+        <p><strong>सीमांकन:</strong> पूर्व: खसरा 413 (चक मार्ग), पश्चिम: 411, उत्तर: नाली, दक्षिण: 414</p>
+        <div style="background:#ecfdf5; border:1px solid #86efac; padding:6px 10px; border-radius:var(--radius-sm); font-size:0.8rem; color:#14532d; margin-top:6px;">
+          ✅ <strong>स्वामित्व सत्यापन:</strong> भूलेख डेटाबेस से डिजिटल रूप से सत्यापित। कोई विवाद दर्ज नहीं।
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:1rem;">
+        <button class="btn" style="flex:1; background:#0284c7;" onclick="window.print()"><i class="fa-solid fa-print"></i> खतौनी प्रिंट करें</button>
+        <button class="btn" style="background:#e2e8f0; color:var(--text-main);" onclick="closeLandRecordModal()">बंद करें</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN HEADER -->
+  <header>
+    <div class="navbar">
+      <a href="#" class="logo">
+        <i class="fa-solid fa-seedling" style="color:#22c55e;"></i>
+        <span>किसान सेतु</span>
+      </a>
+      <span class="sih-badge"><i class="fa-solid fa-shield-halved"></i> PS: SIH26033 / SIH26014</span>
+      
+      <!-- USER PROFILE DROPDOWN MENU -->
+      <div class="user-profile-box">
+        <div class="user-badge" onclick="toggleUserDropdown(event)">
+          <i class="fa-solid fa-circle-user" style="font-size:1.1rem;"></i>
+          <span id="userBadgeText">किसान: +91 9876543210</span>
+          <i class="fa-solid fa-chevron-down" style="font-size:0.75rem; margin-left:2px;"></i>
+        </div>
+        
+        <div class="user-dropdown-menu" id="userDropdown">
+          <div class="dropdown-header">
+            <span id="dropdownRoleTag">सत्यापित किसान खाता</span>
+          </div>
+          <button class="dropdown-item" onclick="openResetPasswordModal()">
+            <i class="fa-solid fa-key" style="color:var(--primary);"></i> पासवर्ड / पिन रीसेट करें
+          </button>
+          <button class="dropdown-item danger" onclick="handleUserLogout()">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> लॉगआउट करें
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- NAVIGATION BAR -->
+  <nav class="nav-tabs-bar">
+    <div class="nav-tabs">
+      <button class="nav-item-btn active" onclick="activateSection('sec-market', this)"><i class="fa-solid fa-store"></i> 1. डायरेक्ट P2P मार्केट</button>
+      <button class="nav-item-btn" onclick="activateSection('sec-voiceagent', this)" style="background:#ede9fe; color:#6d28d9;"><i class="fa-solid fa-phone-volume"></i> 2. देहाती वॉयस AI एजेंट</button>
+      <button class="nav-item-btn" onclick="activateSection('sec-land', this)" style="background:#e0f2fe; color:#0369a1;"><i class="fa-solid fa-map-location-dot"></i> 3. ज़मीन का रकबा व नक्शा</button>
+      <button class="nav-item-btn" onclick="activateSection('sec-grievance', this)" style="background:#fee2e2; color:#991b1b;"><i class="fa-solid fa-landmark-flag"></i> 4. ई-किसान जन शिकायत</button>
+      <button class="nav-item-btn" onclick="activateSection('sec-analytics', this)"><i class="fa-solid fa-chart-pie"></i> 5. बिचौलिया कटौती</button>
+      <button class="nav-item-btn" onclick="activateSection('sec-vision', this)"><i class="fa-solid fa-microscope"></i> 6. AI विज़न व पर्ची</button>
+      <button class="nav-item-btn" onclick="activateSection('sec-geo', this)"><i class="fa-solid fa-industry"></i> 7. चीनी मिल व मंडी भाव</button>
+      <button class="nav-item-btn" onclick="activateSection('sec-voice', this)"><i class="fa-solid fa-headset"></i> 8. AI किसान वाणी</button>
+    </div>
+  </nav>
+
+  <main class="app-container">
+
+    <!-- CLIMATE STRIP (RAIN AWARE) -->
+    <div class="climate-strip">
+      <div class="climate-meta">
+        <div class="climate-item">📍 <span id="geoDistrict">ग्रेटर नोएडा (दादरी)</span></div>
+        <div class="climate-item">🌧️ <strong>मौसम:</strong> <span id="geoTemp">26°C (भारी बारिश / रेड अलर्ट)</span></div>
+        <div class="climate-item">💧 <strong>नमी:</strong> <span id="geoHum">85%</span></div>
+        <div class="climate-item">💨 <strong>हवा:</strong> <span id="geoWind">14 km/h</span></div>
+      </div>
+      <button class="btn btn-sm" style="background:#166534;" onclick="refreshGPSStatus()"><i class="fa-solid fa-rotate"></i> लाइव वेदर सिंक</button>
+    </div>
+
+    <!-- TOP BANNER -->
+    <div class="sih-impact-banner">
+      <div>
+        <h3 style="color:#166534; font-size:1.15rem; font-weight:800;"><i class="fa-solid fa-earth-asia"></i> संपूर्ण डिजिटल कृषि, देहाती वॉयस टिकट व पारदर्शी भूमि अभिलेख</h3>
+        <p style="font-size:0.86rem; color:#14532d;">बिना बिचौलिए के फ़सल बेचें, देहाती बोली में बोलकर सरकारी शिकायत दर्ज करवाएं और खसरा नंबर से खेत का सीमांकन नक्शा देखें।</p>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <div class="impact-stat">
+          <h3>0%</h3>
+          <p>कमीशन कट</p>
+        </div>
+        <div class="impact-stat">
+          <h3>🎙️ वॉयस AI</h3>
+          <p>ऑटो-टिकट</p>
+        </div>
+        <div class="impact-stat">
+          <h3>GIS नक्शा</h3>
+          <p>खेत सीमांकन</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1: DIRECT P2P MARKETPLACE -->
+    <section id="sec-market" class="tab-section active">
+      <div class="section-grid">
+        <div class="panel-card">
+          <div class="panel-head">
+            <span class="panel-title"><i class="fa-solid fa-tag" style="color:#166534;"></i> किसान: सीधे फ़सल लिस्ट करें (No Broker)</span>
+          </div>
+          <form onsubmit="handleCropPost(event)">
+            <input type="text" id="mktCropName" class="input-field" placeholder="फ़सल का नाम (उदा: हरी मटर, बासमती धान)" required style="margin-bottom:0.8rem;" />
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:0.8rem;">
+              <input type="number" id="mktCropQty" class="input-field" placeholder="मात्रा (क्विंटल)" required />
+              <input type="number" id="mktCropPrice" class="input-field" placeholder="सीधा भाव (₹/Qtl)" required />
+            </div>
+            <input type="text" id="mktCropLoc" class="input-field" placeholder="किसान का नाम व स्थान (उदा: रामेश्वर - दनकौर)" required style="margin-bottom:0.8rem;" />
+            <input type="tel" id="mktCropPhone" class="input-field" placeholder="10-अंकों का फ़ोन नंबर" maxlength="10" required style="margin-bottom:0.8rem;" />
+            <label style="font-size:0.82rem; font-weight:700; color:#4338ca; display:block; margin-bottom:4px;">
+              <i class="fa-solid fa-video"></i> 10s क्वालिटी प्रमाण वीडियो:
+            </label>
+            <input type="file" id="mktCropVideo" class="input-field" accept="video/*" style="padding:0.4rem; background:#eef2ff; margin-bottom:0.8rem;" />
+            <button type="submit" class="btn" style="width:100%;"><i class="fa-solid fa-bullhorn"></i> सीधे खरीदार बोर्ड पर लिस्ट करें</button>
+          </form>
+        </div>
+
+        <div class="panel-card panel-card-full">
+          <div class="panel-head">
+            <span class="panel-title"><i class="fa-solid fa-cart-shopping" style="color:#b45309;"></i> प्रत्यक्ष P2P व्यापार बोर्ड (Direct Board)</span>
+            <small style="color:var(--text-muted);">सौदा पक्का होने पर 'सौदा पक्का' दबाकर डिजिटल रसीद प्राप्त करें</small>
+          </div>
+          <div class="structured-table-box">
+            <table class="app-table">
+              <thead>
+                <tr><th>फ़सल</th><th>मात्रा</th><th>सीधा भाव</th><th>किसान व स्थान</th><th>क्वालिटी वीडियो</th><th>बचत प्रभाव</th><th>स्थिति</th><th>एक्शन</th></tr>
+              </thead>
+              <tbody id="mktTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: RURAL VOICE AI AGENT -->
+    <section id="sec-voiceagent" class="tab-section">
+      <div class="section-grid">
+        <div class="panel-card panel-card-full">
+          <div class="panel-head">
+            <span class="panel-title"><i class="fa-solid fa-phone-volume" style="color:#6d28d9;"></i> देहाती वॉयस AI एजेंट (Voice to Ticket Engine)</span>
+            <span class="badge-status badge-live" style="background:#ede9fe; color:#6d28d9; border-color:#c4b5fd;">Bhashini & LLM Webhook Ready</span>
+          </div>
+
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.2rem; align-items:center;">
+            <div style="background:#f5f3ff; border:1.5px solid #ddd6fe; border-radius:var(--radius-lg); padding:1.2rem; text-align:center;">
+              <h4 style="color:#5b21b6; margin-bottom:6px;">🎙️ अपनी स्थानीय बोली में बोलिए</h4>
+              <p style="font-size:0.86rem; color:#4c1d95; margin-bottom:12px;">भोजपुरी, मैथिली, अवधी, हरियाणवी में बोलें। AI खुद श्रेणी तय करके सीधे सरकारी टिकट काट देगा।</p>
+              
+              <button class="btn" id="btnVoiceAgentMic" onclick="captureRuralVoiceAgent()" style="background:#7c3aed; padding:0.9rem 1.6rem; font-size:1rem; border-radius:50px; box-shadow:0 10px 15px -3px rgba(124, 58, 237, 0.3);">
+                <i class="fa-solid fa-microphone-lines"></i> <span id="agentVoiceStatus">यहाँ दबाकर बोलना शुरू करें...</span>
+              </button>
+
+              <p style="font-size:0.8rem; color:#6b7280; margin-top:10px;">उदा: <em>"अरे भैया, मंडी में आढ़तिया 200 रुपया जबरदस्ती काट लिहिस, ना देवे पर लड़ता बा..."</em></p>
+            </div>
+
+            <div style="background:#ffffff; border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem;">
+              <h4 style="font-size:0.92rem; color:var(--text-main); margin-bottom:8px;"><i class="fa-solid fa-terminal"></i> AI एजेंट लाइव पार्सिंग परिणाम:</h4>
+              <div id="voiceAgentResultBox" style="font-size:0.86rem; background:#f8fafc; border:1px solid #e2e8f0; border-radius:var(--radius-md); padding:0.8rem; min-height:120px;">
+                <p style="color:var(--text-muted);">माइक दबाकर बोलिए, AI एजेंट यहाँ लाइव डेटा निकाल कर दिखाएगा...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: DIGITAL LAND RECORD & CADASTRAL MAP -->
+    <section id="sec-land" class="tab-section">
+      <div class="section-grid">
+        <div class="panel-card">
+          <div class="panel-head">
+            <span class="panel-title"><i class="fa-solid fa-magnifying-glass-location" style="color:#0284c7;"></i> खसरा / खतौनी द्वारा ज़मीन खोजें</span>
+          </div>
+          <form onsubmit="handleLandSearch(event)">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:0.8rem;">
+              <input type="text" class="input-field" value="गौतम बुद्ध नगर (ग्रेटर नोएडा)" readonly style="background:#f1f5f9;" />
+              <input type="text" class="input-field" value="दादरी" readonly style="background:#f1f5f9;" />
+            </div>
+            <input type="text" id="landVillageInput" class="input-field" placeholder="गाँव का नाम" value="दनकौर" required style="margin-bottom:0.8rem;" />
+            <div style="display:flex; gap:8px;">
+              <input type="text" id="landKhasraInput" class="input-field" placeholder="खसरा / गाटा संख्या" value="412/1" required style="flex:1;" />
+              <button type="submit" class="btn" style="background:#0284c7; height:44px;"><i class="fa-solid fa-search"></i> खोजें</button>
+            </div>
+          </form>
+
+          <div id="landSearchResultBox" style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:var(--radius-md); padding:0.8rem; margin-top:0.6rem;">
+            <p style="font-weight:800; color:#0369a1;"><i class="fa-solid fa-user-check"></i> खातेदार: <span id="dispOwner">रामेश्वर दयाल पुत्र चेतराम</span></p>
+            <p style="font-size:0.86rem; margin:2px 0;"><strong>खसरा नंबर:</strong> <span id="dispKhasra">412/1</span> | <strong>खाता:</strong> 00184</p>
+            <p style="font-size:0.92rem; font-weight:800; color:#166534; margin:4px 0;">📏 कुल रकबा: <span id="dispArea">0.8450 हेक्टेयर (3.34 बीघा)</span></p>
+            <p style="font-size:0.82rem; color:var(--text-muted);">कृषि भूमि • विवाद मुक्त</p>
+            <button class="btn btn-sm btn-action-slip" style="margin-top:8px; width:100%;" onclick="openLandRecordModal()"><i class="fa-solid fa-file-pdf"></i> प्रमाणित खतौनी पर्ची डाउनलोड करें</button>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-head">
+            <span class="panel-title"><i class="fa-solid fa-draw-polygon" style="color:#16a34a;"></i> खेत सीमांकन नक्शा (Cadastral Map)</span>
+            <span class="badge-land">लाइव प्लॉटिंग</span>
+          </div>
+          
+          <div class="cadastral-map-view" id="cadastralMapContainer">
+            <div class="neighbor-plot" style="top:12px; width:140px; height:40px;">खसरा 408 (उत्तर नाली)</div>
+            <div class="neighbor-plot" style="bottom:12px; width:140px; height:40px;">खसरा 414 (दक्षिण खेत)</div>
+            <div class="neighbor-plot" style="left:12px; width:45px; height:110px;">खसरा 411</div>
+            <div class="neighbor-plot" style="right:12px; width:45px; height:110px; background:#fef3c7; color:#92400e;">खसरा 413 (चक मार्ग)</div>
+            
+            <div class="khasra-plot">
+              <span style="font-size:0.75rem; color:#166534;">📍 आपका खेत</span>
+              <span id="mapKhasraNum">गाटा: 412/1</span>
+              <span style="font-size:0.72rem; color:#14532d;" id="mapAreaNum">0.8450 Hect</span>
+            </div>
+          </div>
+
+          <div style="margin-top:0.6rem; font-size:0.82rem; color:var(--text-muted); display:flex; justify-content:space-between;">
+            <span><i class="fa-solid fa-circle" style="color:#22c55e;"></i> चयनित खेत सीमा</span>
+            <span><i class="fa-solid fa-circle" style="color:#d97706;"></i> चक मार्ग</span>
+            <span><i class="fa-solid fa-circle" style="color:#94a3b8;"></i> मेड़ / पड़ोसी गाटा</span>
+          </div>
+        </div>
+
+        <div class="panel-card panel-card-full">
+          <div class="panel-head">
+            <span class="panel-title"><i class="fa-solid fa-table-list" style="color:#0369a1;"></i> पंजीकृत खातेदार व गाटा विवरण</span>
+            <small style="color:var(--text-muted);">राजस्व परिषद डेटाबेस से लाइव सत्यापित रिकॉर्ड</small>
+          </div>
+          <div class="structured-table-box">
+            <table class="app-table">
+              <thead>
+                <tr><th>खसरा संख्या</th><th>खातेदार का नाम</th><th>गाँव / मौजा</th><th>कुल रकबा (हेक्टेयर)</th><th>बीघा (अनुमानित)</th><th>फसल स्थिति</th><th>नक्शा व खतौनी</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong style="color:#0284c7;">412/1</strong></td>
+                  <td>रामेश्वर दयाल पुत्र चेतराम</td>
+                  <td>दनकौर</td>
+                  <td><strong>0.8450</strong></td>
+                  <td>3.34 बीघा</td>
+                  <td><span class="badge-status badge-live">हरी मटर (सक्रिय)</span></td>
+                  <td><button class="btn btn-sm btn-action-slip" onclick="loadPlotToMap('412/1', 'रामेश्वर दयाल पुत्र चेतराम', '0.8450', '3.34 बीघा')"><i class="fa-solid fa-map"></i> देखें</button></td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#0284c7;">218/3</strong></td>
+                  <td>सतपाल सिंह पुत्र हरपाल</td>
+                  <td>दादरी देहात</td>
+                  <td><strong>1.2200</strong></td>
+                  <td>4.82 बीघा</td>
+                  <td><span class="badge-status badge-live">बासमती 1509</span></td>
+                  <td><button class="btn btn-sm btn-action-slip" onclick="loadPlotToMap('218/3', 'सतपाल सिंह पुत्र हरपाल', '1.2200', '4.82 बीघा')"><i class="fa-solid fa-map"></i> देखें</button></td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#0284c7;">105/2</strong></td>
+                  <td>राजेश चौधरी पुत्र मुंशीराम</td>
+                  <td>जेवर</td>
+                  <td><strong>0.6150</strong></td>
+                  <td>2.43 बीघा</td>
+                  <td><span class="badge-status badge-live">नया आलू</span></td>
+                  <td><button class="btn btn-sm btn-action-slip" onclick="loadPlotToMap('105/2', 'राजेश चौधरी पुत्र मुंशीराम', '0.6150', '2.43 बीघा')"><i class="fa-solid fa-map"></i> देखें</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: GOVERNMENT GRIEVANCE & EVIDENCE UPLOAD -->
+    <section id="sec-grievance" class="tab-section">
+      <div class="section-grid">
+        <div class="panel-card">
+          <div class="panel-head">
+            <span class="panel-title"><i class="fa-solid fa-file-shield" style="color:#b91c1c;"></i> सरकार को सीधी शिकायत / धांधली का सबूत भेजें</span>
+          </div>
+          <form onsubmit="handleGrievanceSubmit(event)">
+            <label style="font-size:0.82rem; font-weight:700;">शिकायत का प्रकार:</label>
+            <select id="grvCategory" class="input-field" style="background:#fff; margin-bottom:0.8rem;" required>
+              <option value="मंडी में बिचौलियों द्वारा अवैध वसूली व अधिक कटौती">मंडी में बिचौलियों द्वारा अवैध वसूली व अधिक कटौती</option>
+              <option value="गाँव में सरकारी क्रय केंद्र / गोदाम की अनुपलब्धता">गाँव में सरकारी क्रय केंद्र / गोदाम की अनुपलब्धता</option>
+              <option value="नकली खाद / कीटनाशक / घटिया बीज की बिक्री">नकली खाद / कीटनाशक / घटिया बीज की बिक्री</option>
+              <option value="न्यूनतम समर्थन मूल्य (MSP) से कम पर जबरन खरीद">न्यूनतम समर्थन मूल्य (MSP) से कम पर जबरन खरीद</option>
+              <option value="नहर में पानी / बिजली आपूर्ति की कमी">नहर में पानी / बिजली आपूर्ति की कमी</option>
+            </select>
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:0.8rem;">
+              <input type="text" id="grvFarmerName" class="input-field" placeholder="किसान का नाम" required />
+              <input type="text" id="grvVillage" class="input-field" placeholder="गाँव व ब्लॉक" required />
+            </div>
+            
+            <textarea id="grvDescription" class="input-field" style="height:75px; resize:none; margin-bottom:0.8rem;" placeholder="धांधली, अवैध पैसे या समस्या का पूरा ब्यौरा..." required></textarea>
+            
+            <label style="font-size:0.82rem; font-weight:700; color:#b91c1c; display:block; margin-bottom:4px;">
+              <i class="fa-solid fa-camera"></i> फ़ोटो सबूत अपलोड करें (पर्ची, रसीद, गोदाम):
+            </label>
+            <input type="file" id="grvPhotoProof" class="input-field" accept="image/*" style="padding:0.4rem; background:#fff5f5; border-color:#fca5a5; margin-bottom:0.8rem;" onchange="previewGrievancePhoto(this)" />
+            <img id="grvPhotoLocalPreview" src="" alt="Evidence Preview" style="max-height:80px; border-radius:var(--radius-sm); display:none; margin:0 auto 8px; border:1px solid #cbd5e1;" />
+
+            <button type="submit" class="btn" style="width:100%; background:#b91c1c;"><i class="fa-solid fa-paper-plane"></i> सबूत सहित शिकायत दर्ज करें</button>
+          </form>
+        </div>
+
+        <div class="panel-card panel-card-full">
+          <div class="panel-head">
+            <span class="panel-title"><i class="fa-solid fa-list-check" style="color:#3730a3;"></i> दर्ज शिकायतों का लाइव स्टेटस</span>
+            <small style="color:var(--text-muted);">पारदर्शिता पोर्टल: डिजिटल सबूत सहित हर केस सीधे नोडल अधिकारी के पास जाता है</small>
+          </div>
+          <div class="structured-table-box">
+            <table class="app-table">
+              <thead>
+                <tr><th>शिकायत आईडी</th><th>दिनांक</th><th>किसान व गाँव</th><th>शिकायत श्रेणी</th><th>सबूत (Proof)</th><th>सरकारी विभाग</th><th>स्थिति</th><th>एक्शन</th></tr>
+              </thead>
+              <tbody id="grvTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: INTERMEDIARY REDUCTION ANALYTICS -->
+    <section id="sec-analytics" class="tab-section">
+      <div class="section-grid">
+        <div class="panel-card panel-card-full">
+          <div class="panel-head">
+            <span class="panel-title"><i class="fa-solid fa-scale-balanced" style="color:#b45309;"></i> मूल्य श्रृंखला तुलना: पारंपरिक मंडी बनाम किसान सेतु</span>
+            <span class="badge-savings">SIH26033 Problem Validation</span>
+          </div>
+
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.2rem; margin-top:0.5rem;">
+            <div style="background:#fef2f2; border:1.5px solid #fecaca; border-radius:var(--radius-lg); padding:1.2rem;">
+              <h4 style="color:#991b1b; margin-bottom:8px;"><i class="fa-solid fa-triangle-exclamation"></i> पारंपरिक मंडी प्रणाली (Multiple Intermediaries)</h4>
+              <p style="font-size:0.85rem; color:#7f1d1d; margin-bottom:10px;">किसान को मिलता है मात्र 55% से 60% उपभोक्ता मूल्य।</p>
+              <ul style="font-size:0.88rem; list-style:none; line-height:1.8;">
+                <li>❌ <strong>कच्चा आढ़तिया (कमीशन):</strong> 2.5% - 4%</li>
+                <li>❌ <strong>पक्का आढ़तिया व दलाल:</strong> 5% - 8%</li>
+                <li>❌ <strong>लोडिंग, पल्लेदारी व मंडी शुल्क:</strong> 3%</li>
+                <li>❌ <strong>थोक व्यापारी मार्जिन:</strong> 12% - 15%</li>
+                <li style="border-top:1px dashed #f87171; padding-top:6px; margin-top:6px;">
+                  🔴 <strong>किसान का शुद्ध नुकसान:</strong> ₹450 - ₹700 प्रति क्विंटल
+                </li>
+              </ul>
+            </div>
+
+            <div style="background:#f0fdf4; border:1.5px solid #86efac; border-radius:var(--radius-lg); padding:1.2rem;">
+              <h4 style="color:#166534; margin-bottom:8px;"><i class="fa-solid fa-circle-check"></i> किसान सेतु मॉडल (Direct 1-to-1 P2P)</h4>
+              <p style="font-size:0.85rem; color:#14532d; margin-bottom:10px;">किसान और स्थानीय रिटेलर के बीच 100% पारदर्शी सीधा व्यापार।</p>
+              <ul style="font-size:0.88rem; list-style:none; line-height:1.8;">
+                <li>✅ <strong>बिचौलिया कमीशन:</strong> 0% (शून्य)</li>
+                <li>✅ <strong>क्वालिटी आश्वासन:</strong> 10-सेकंड वीडियो शोकेस</li>
+                <li>✅ <strong>सीधा डिजिटल एग्रीमेंट:</strong> तुरंत कॉल व तौल</li>
+                <li>✅ <strong>उपभोक्ता को फ़ायदा:</strong> 10% सस्ता ताज़ा उत्पाद</li>
+                <li style="border-top:1px dashed #4ade80; padding-top:6px; margin-top:6px;">
+                  🟢 <strong>किसान को शुद्ध अतिरिक्त लाभ:</strong> +₹400 से ₹650 प्रति क्विंटल
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: AI VISION & PRESCRIPTION -->
+    <section id="sec-vision" class="tab-section">
+      <div class="section-grid">
+        <div class="panel-card">
+          <div class="panel-head">
+            <span class="panel-title"><i class="fa-solid fa-droplet" style="color:#0284c7;"></i> AI मिट्टी नमी स्कैनर</span>
+          </div>
+          <label class="upload-area" for="inputSoil">
+            <i class="fa-solid fa-mountain" style="font-size:2rem; color:#0284c7;"></i>
+            <p style="font-weight:700; margin-top:4px;">मिट्टी की फ़ोटो यहाँ अपलोड करें</p>
+            <img id="imgSoilPreview" class="preview-thumb" alt="Soil Preview" />
+            <input type="file" id="inputSoil" accept="image/*" onchange="analyzeSoil(this)" />
+          </label>
+          <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:var(--radius-md); padding:0.8rem;">
+            <p style="font-weight:700; color:#0369a1;">💧 नमी का स्तर: 88% (वर्षा जनित उच्च नमी)</p>
+            <div class="moisture-track"><div class="moisture-fill" id="soilBar" style="width:88%; background:#0284c7;"></div></div>
+            <p style="font-size:0.86rem;"><strong>सिंचाई सलाह:</strong> बारिश के कारण खेत में अत्यधिक नमी है। सिंचाई बिल्कुल न करें।</p>
+            <button class="btn btn-sm btn-action-slip" style="margin-top:8px;" onclick="generateSlip('soil')"><i class="fa-solid fa-file-pdf"></i> डिजिटल पर्ची डाउनलोड करें</button>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-head">
+            <span class="panel-title"><i class="fa-solid fa-leaf" style="color:#16a34a;"></i> AI पत्ती व रोग डॉक्टर</span>
+          </div>
+          <label class="upload-area" for="inputLeaf">
+            <i class="fa-solid fa-camera" style="font-size:2rem; color:#16a34a;"></i>
+            <p style="font-weight:700; margin-top:4px;">पत्ते की फ़ोटो यहाँ अपलोड करें</p>
+            <img id="imgLeafPreview" class="preview-thumb" alt="Leaf Preview" />
+            <input type="file" id="inputLeaf" accept="image/*" onchange="analyzeLeaf(this)" />
+          </label>
+          <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:var(--radius-md); padding:0.8rem;">
+            <p style="font-weight:700; color:#166534;">🌾 फ़सल: मटर | ⚠️ रोग: पाउडरी मिल्ड्यू</p>
+            <p style="font-size:0.86rem; margin:4px 0;"><strong>दवा व खुराक:</strong> सल्फर 80% WP (2 g/L पानी) स्प्रे करें।</p>
+            <button class="btn btn-sm btn-action-slip" style="margin-top:8px;" onclick="generateSlip('leaf')"><i class="fa-solid fa-file-pdf"></i> डिजिटल प्रिस्क्रिप्शन पर्ची</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 7: GEO & MANDI -->
+    <section id="sec-geo" class="tab-section">
+      <div class="section-grid">
+        <div class="panel-card">
+          <div class="panel-head"><span class="panel-title">📍 नजदीकी चीनी मिल (GPS Distance)</span></div>
+          <div class="structured-table-box">
+            <table class="app-table">
+              <thead><tr><th>मिल का नाम</th><th>दूरी (KM)</th><th>सरकारी भाव</th><th>कॉल</th></tr></thead>
+              <tbody>
+                <tr><td>दादरी सहकारी चीनी मिल</td><td><strong style="color:#166534;">8.2 KM</strong></td><td>₹370 / Qtl</td><td><a href="tel:01202345678" class="btn btn-sm" style="background:#16a34a; text-decoration:none;"><i class="fa-solid fa-phone"></i></a></td></tr>
+                <tr><td>दौराला शुगर वर्क्स</td><td><strong style="color:#16a34a;">48.5 KM</strong></td><td>₹375 / Qtl</td><td><a href="tel:01212865201" class="btn btn-sm" style="background:#16a34a; text-decoration:none;"><i class="fa-solid fa-phone"></i></a></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-head"><span class="panel-title">🌾 स्थानीय थोक मंडी भाव संदर्भ</span></div>
+          <div class="structured-table-box">
+            <table class="app-table">
+              <thead><tr><th>फ़सल</th><th>मंडी केंद्र</th><th>ताज़ा थोक भाव</th></tr></thead>
+              <tbody>
+                <tr><td>🌱 ताज़ा हरी मटर</td><td>दादरी मंडी</td><td><strong style="color:#16a34a;">₹4,100 / Qtl</strong></td></tr>
+                <tr><td>🌾 धान (बासमती 1509)</td><td>दादरी मंडी</td><td><strong style="color:#16a34a;">₹3,450 / Qtl</strong></td></tr>
+                <tr><td>🥔 नया आलू</td><td>ग्रेटर नोएडा</td><td><strong style="color:#16a34a;">₹1,550 / Qtl</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 8: AI VOICE ASSISTANT -->
+    <section id="sec-voice" class="tab-section">
+      <div class="panel-card panel-card-full">
+        <div class="panel-head"><span class="panel-title"><i class="fa-solid fa-headset"></i> AI किसान वाणी (वॉइस असिस्टेंट)</span></div>
+        <div class="chat-container" id="chatArea">
+          <div class="chat-bubble chat-bot">🙏 <strong>राम-राम किसान भाई!</strong> आप ज़मीन का खसरा-नक्शा देखने, फ़सल बेचने या शिकायत दर्ज करने के बारे में बोलकर पूछ सकते हैं।</div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="text" id="chatInput" class="input-field" style="flex:1;" placeholder="खसरा 412 का रकबा, नक्शा, मटर का भाव..." onkeydown="if(event.key==='Enter') sendChatMessage();" />
+          <button class="mic-btn" id="btnMic" onclick="triggerVoiceInput()"><i class="fa-solid fa-microphone"></i></button>
+          <button class="btn" onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // NAVIGATION
+    function activateSection(secId, btnElem) {
+      document.querySelectorAll('.nav-item-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+      if (btnElem) btnElem.classList.add('active');
+      const targetSec = document.getElementById(secId);
+      if (targetSec) targetSec.classList.add('active');
+    }
+
+    // 100% FIXED MASTER OTP ENGINE (STRICTLY 4321)
+    let currentRole = 'farmer';
+    let loggedUserPhone = '+91 9876543210';
+    let userStoredPassword = 'user123';
+
+    function selectAuthRole(r) {
+      currentRole = r;
+      const bFarmer = document.getElementById('btnRoleFarmer');
+      const bBuyer = document.getElementById('btnRoleBuyer');
+      if (bFarmer && bBuyer) {
+        bFarmer.className = 'role-btn farmer' + (r === 'farmer' ? ' active' : '');
+        bBuyer.className = 'role-btn buyer' + (r === 'buyer' ? ' active' : '');
+      }
+    }
+
+    function updatePhoneValidationRule() {
+      const code = document.getElementById('authCountryCode').value;
+      const pInput = document.getElementById('authPhone');
+      if (code === '+91' || code === '+1') {
+        pInput.maxLength = 10;
+        pInput.placeholder = "10-अंकों का फ़ोन नंबर";
+      } else {
+        pInput.maxLength = 12;
+        pInput.placeholder = "फ़ोन नंबर दर्ज करें";
+      }
+    }
+
+    async function sendAuthOtp() {
+      const code = document.getElementById('authCountryCode').value;
+      const pVal = document.getElementById('authPhone').value.trim();
+
+      if ((code === '+91' || code === '+1') && pVal.length !== 10) {
+        return alert("⚠️ कृपया ठीक 10 अंकों का वैध मोबाइल नंबर दर्ज करें!");
+      }
+      if (pVal.length < 7) {
+        return alert("⚠️ कृपया एक वैध फ़ोन नंबर दर्ज करें!");
+      }
+
+      const btn = document.getElementById('btnSendOtp');
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> SMS भेजा जा रहा है...';
+      btn.disabled = true;
+
+      await new Promise(res => setTimeout(res, 600));
+
+      document.getElementById('dispTargetPhone').innerText = `${code} ${pVal}`;
+      document.getElementById('authStepPhone').style.display = 'none';
+      document.getElementById('authStepOtp').style.display = 'block';
+
+      btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> OTP प्राप्त करें';
+      btn.disabled = false;
+
+      alert(`📲 मोबाइल नंबर (${code} ${pVal}) पर 4-अंकों का सुरक्षा OTP भेज दिया गया है।`);
+    }
+
+    function backToPhoneStep() {
+      document.getElementById('authStepOtp').style.display = 'none';
+      document.getElementById('authStepPhone').style.display = 'block';
+      document.getElementById('authOtpInput').value = '';
+    }
+
+    function verifyAndLogin() {
+      const enteredOtp = document.getElementById('authOtpInput').value.trim();
+      if (enteredOtp !== "4321") {
+        return alert("❌ अमान्य OTP! कृपया SMS में आया सही कोड दर्ज करें।");
+      }
+
+      const code = document.getElementById('authCountryCode').value;
+      const pVal = document.getElementById('authPhone').value.trim();
+      loggedUserPhone = `${code} ${pVal}`;
+
+      document.getElementById('authOverlay').style.display = 'none';
+      document.getElementById('userBadgeText').innerText = (currentRole === 'farmer' ? 'किसान: ' : 'खरीदार: ') + loggedUserPhone;
+      document.getElementById('dropdownRoleTag').innerText = (currentRole === 'farmer' ? 'सत्यापित किसान खाता: ' : 'सत्यापित खरीदार खाता: ') + loggedUserPhone;
+      
+      const slipF = document.getElementById('slipFarmer');
+      if (slipF) slipF.innerText = loggedUserPhone;
+
+      alert("✅ मोबाइल नंबर सफलतापूर्वक सत्यापित! किसान सेतु पोर्टल में आपका स्वागत है।");
+    }
+
+    // USER PROFILE DROPDOWN, RESET PASSWORD & LOGOUT LOGIC
+    function toggleUserDropdown(e) {
+      e.stopPropagation();
+      const dd = document.getElementById('userDropdown');
+      dd.classList.toggle('show');
+    }
+
+    window.addEventListener('click', (e) => {
+      const dd = document.getElementById('userDropdown');
+      if (dd && dd.classList.contains('show')) {
+        dd.classList.remove('show');
+      }
+    });
+
+    function openResetPasswordModal() {
+      document.getElementById('userDropdown').classList.remove('show');
+      document.getElementById('resetTargetPhone').innerText = loggedUserPhone;
+      document.getElementById('resetStep1').style.display = 'block';
+      document.getElementById('resetStep2').style.display = 'none';
+      document.getElementById('resetOtpInput').value = '';
+      document.getElementById('newPasswordInput').value = '';
+      document.getElementById('confirmPasswordInput').value = '';
+      document.getElementById('resetPasswordModal').style.display = 'flex';
+    }
+
+    function closeResetPasswordModal() {
+      document.getElementById('resetPasswordModal').style.display = 'none';
+    }
+
+    function sendResetOtp() {
+      document.getElementById('resetStep1').style.display = 'none';
+      document.getElementById('resetStep2').style.display = 'block';
+      alert(`📲 सुरक्षा OTP आपके पंजीकृत फ़ोन (${loggedUserPhone}) पर भेज दिया गया है।`);
+    }
+
+    function submitNewPassword() {
+      const enteredOtp = document.getElementById('resetOtpInput').value.trim();
+      const newPass = document.getElementById('newPasswordInput').value.trim();
+      const confPass = document.getElementById('confirmPasswordInput').value.trim();
+
+      if (enteredOtp !== "4321") {
+        return alert("❌ अमान्य OTP! कृपया SMS में आया सही कोड दर्ज करें।");
+      }
+      if (newPass.length < 4) {
+        return alert("⚠️ नया पासवर्ड कम से कम 4 अक्षरों या अंकों का होना चाहिए!");
+      }
+      if (newPass !== confPass) {
+        return alert("⚠️ दोनों पासवर्ड मेल नहीं खा रहे हैं!");
+      }
+
+      userStoredPassword = newPass;
+      closeResetPasswordModal();
+      alert("✅ पासवर्ड सफलतापूर्वक रीसेट हो गया है!");
+    }
+
+    function handleUserLogout() {
+      document.getElementById('userDropdown').classList.remove('show');
+      if (confirm("क्या आप वाकई किसान सेतु से लॉगआउट करना चाहते हैं?")) {
+        document.getElementById('authStepOtp').style.display = 'none';
+        document.getElementById('authStepPhone').style.display = 'block';
+        document.getElementById('authPhone').value = '';
+        document.getElementById('authOtpInput').value = '';
+        document.getElementById('authOverlay').style.display = 'flex';
+        alert("🔒 आप सुरक्षित रूप से लॉगआउट हो गए हैं।");
+      }
+    }
+
+    // LIVE GPS & RAIN SYNC
+    function refreshGPSStatus() {
+      document.getElementById('geoTemp').innerText = "26°C (झमाझम बारिश 🌧️)";
+      document.getElementById('geoHum').innerText = "88%";
+      document.getElementById('geoWind').innerText = "15 km/h";
+      alert("📍 GPS लोकेशन व लाइव वेदर सिंक सफल!\nस्थान: ग्रेटर नोएडा (दादरी)\nस्थिति: भारी बारिश / रेड अलर्ट (नमी 88% - सिंचाई की कोई आवश्यकता नहीं)।");
+    }
+
+    // DIRECT MARKETPLACE
+    let marketItems = [
+      { 
+        id: 101, 
+        crop: "🌱 हरी मटर (A-Grade)", 
+        icon: "🌱",
+        qty: "40 Qtl", 
+        price: "₹4,100 / Qtl", 
+        farmer: "रामेश्वर दयाल - दनकौर", 
+        phone: "9818012345", 
+        savings: "₹380/Qtl बचत", 
+        hasVideo: true, 
+        isSold: false 
+      },
+      { 
+        id: 102, 
+        crop: "🌾 बासमती 1509 धान", 
+        icon: "🌾",
+        qty: "120 Qtl", 
+        price: "₹3,450 / Qtl", 
+        farmer: "सतपाल सिंह - दादरी", 
+        phone: "9872012345", 
+        savings: "₹420/Qtl बचत", 
+        hasVideo: true, 
+        isSold: false 
+      },
+      { 
+        id: 103, 
+        crop: "🥔 नया लाल आलू", 
+        icon: "🥔",
+        qty: "100 Qtl", 
+        price: "₹1,550 / Qtl", 
+        farmer: "राजेश चौधरी - जेवर", 
+        phone: "9450123456", 
+        savings: "₹210/Qtl बचत", 
+        hasVideo: true, 
+        isSold: true 
+      }
+    ];
+
+    function renderMarketGrid() {
+      const tb = document.getElementById('mktTableBody');
+      if (!tb) return;
+      tb.innerHTML = '';
+      marketItems.forEach(item => {
+        const tr = document.createElement('tr');
+        if (item.isSold) tr.style.opacity = '0.6';
+        tr.innerHTML = `
+          <td><strong>${item.crop}</strong></td>
+          <td>${item.qty}</td>
+          <td><strong style="color:#16a34a;">${item.price}</strong></td>
+          <td>${item.farmer}</td>
+          <td><button class="btn btn-sm btn-action-video" onclick="showSimulatedVideoModal('${item.crop}', '${item.icon}', '${item.farmer}')"><i class="fa-solid fa-play"></i> 10s वीडियो</button></td>
+          <td><span class="badge-savings">⚡ ${item.savings}</span></td>
+          <td><span class="badge-status ${item.isSold ? 'badge-sold' : 'badge-live'}">${item.isSold ? '🔴 Sold' : '🟢 Live'}</span></td>
+          <td>
+            ${!item.isSold ? `
+              <a href="tel:${item.phone}" class="btn btn-sm" style="background:#16a34a; text-decoration:none;"><i class="fa-solid fa-phone"></i> कॉल</a> 
+              <button class="btn btn-sm" style="background:#fef08a; color:#854d0e;" onclick="markSoldAndShowReceipt(${item.id})">सौदा पक्का</button>
+            ` : `
+              <button class="btn btn-sm btn-action-slip" onclick="openCompletedReceipt(${item.id})">रसीद</button>
+            `}
+          </td>
+        `;
+        tb.appendChild(tr);
+      });
+    }
+
+    function handleCropPost(e) {
+      e.preventDefault();
+      const pVal = document.getElementById('mktCropPhone')?.value?.trim();
+      if (pVal.length !== 10) {
+        return alert("⚠️ कृपया संपर्क हेतु 10-अंकों का वैध मोबाइल नंबर डालें!");
+      }
+
+      const crop = document.getElementById('mktCropName')?.value?.trim() || "फसल";
+      const qty = (document.getElementById('mktCropQty')?.value?.trim() || "0") + " Qtl";
+      const price = "₹" + (document.getElementById('mktCropPrice')?.value?.trim() || "0") + " / Qtl";
+      const farmer = document.getElementById('mktCropLoc')?.value?.trim() || "किसान";
+
+      marketItems.unshift({
+        id: Date.now(),
+        crop, 
+        icon: "🌾",
+        qty, price, farmer, phone: pVal,
+        savings: "₹350/Qtl बचत",
+        hasVideo: true,
+        isSold: false
+      });
+      renderMarketGrid();
+      alert("✅ बधाई! बिना बिचौलिए के सीधे बाज़ार में आपकी फ़सल 10s वीडियो सहित लाइव हो गई है।");
+      e.target.reset();
+    }
+
+    function markSoldAndShowReceipt(id) {
+      const it = marketItems.find(i => i.id === id);
+      if (it) {
+        it.isSold = true;
+        renderMarketGrid();
+        openCompletedReceipt(id);
+      }
+    }
+
+    function openCompletedReceipt(id) {
+      const it = marketItems.find(i => i.id === id);
+      if (!it) return;
+      document.getElementById('recDate').innerText = new Date().toLocaleString('hi-IN');
+      document.getElementById('recCrop').innerText = it.crop;
+      document.getElementById('recQty').innerText = it.qty;
+      document.getElementById('recPrice').innerText = it.price;
+      document.getElementById('recFarmer').innerText = it.farmer;
+      document.getElementById('receiptModal').style.display = 'flex';
+    }
+    function closeReceiptModal() { document.getElementById('receiptModal').style.display = 'none'; }
+
+    // VIDEO SYSTEM
+    let videoInterval = null;
+    function showSimulatedVideoModal(crop, icon, farmer) {
+      document.getElementById('videoModalTitle').innerText = "📹 " + crop + " (10s लाइव वीडियो)";
+      document.getElementById('videoAnimCrop').innerText = crop;
+      document.getElementById('videoAnimIcon').innerText = icon;
+      document.getElementById('videoModalMeta').innerText = "सत्यापित किसान: " + farmer + " | 100% शुद्ध फ़सल रिकॉर्डिंग";
+      
+      let sec = 1;
+      const timerEl = document.getElementById('videoTimer');
+      if (videoInterval) clearInterval(videoInterval);
+      timerEl.innerText = `00:01 / 00:10`;
+      
+      videoInterval = setInterval(() => {
+        sec++;
+        if (sec > 10) sec = 1;
+        timerEl.innerText = `00:${sec < 10 ? '0' + sec : sec} / 00:10`;
+      }, 1000);
+
+      document.getElementById('videoModal').style.display = 'flex';
+    }
+    function closeVideoModal() {
+      if (videoInterval) clearInterval(videoInterval);
+      document.getElementById('videoModal').style.display = 'none';
+    }
+
+    // RURAL DIALECT VOICE AI AGENT
+    function captureRuralVoiceAgent() {
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRec) return alert("ब्राउज़र में वॉइस इनपुट सपोर्ट नहीं है (Google Chrome का उपयोग करें)।");
+
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+
+      const recognizer = new SpeechRec();
+      recognizer.lang = 'hi-IN';
+
+      const btn = document.getElementById('btnVoiceAgentMic');
+      const statusText = document.getElementById('agentVoiceStatus');
+
+      recognizer.onstart = () => {
+        btn?.classList.add('active');
+        if (statusText) statusText.innerText = "सुन रहा हूँ... अपनी ठेठ देहाती भाषा में बोलिए...";
+      };
+
+      recognizer.onresult = (event) => {
+        const rawSpeech = event.results[0][0].transcript;
+        
+        let detectedCategory = "गाँव में बुनियादी सुविधा व सरकारी केंद्र की कमी";
+        let targetDept = "खाद्य, रसद एवं ग्रामीण विकास विभाग";
+        
+        if (rawSpeech.includes("आढ़तिया") || rawSpeech.includes("काट") || rawSpeech.includes("पैसा") || rawSpeech.includes("दलाल") || rawSpeech.includes("मंडी")) {
+          detectedCategory = "मंडी में बिचौलियों द्वारा अवैध वसूली व अधिक कटौती";
+          targetDept = "मंडी परिषद एवं उपभोक्ता मामले विभाग";
+        } else if (rawSpeech.includes("खाद") || rawSpeech.includes("दवा") || rawSpeech.includes("बीज")) {
+          detectedCategory = "नकली खाद / कीटनाशक / घटिया बीज की बिक्री";
+          targetDept = "जिला कृषि एवं रासायनिक नियंत्रण सेल";
+        } else if (rawSpeech.includes("भाव") || rawSpeech.includes("एमएसपी") || rawSpeech.includes("कम")) {
+          detectedCategory = "न्यूनतम समर्थन मूल्य (MSP) से कम पर जबरन खरीद";
+          targetDept = "FCI एवं नोडल मूल्य संधारण प्रकोष्ठ";
+        }
+
+        const ticketId = "GRV-UP-" + Math.floor(1000 + Math.random() * 9000);
+        const today = new Date().toLocaleDateString('hi-IN');
+
+        const resBox = document.getElementById('voiceAgentResultBox');
+        if (resBox) {
+          resBox.innerHTML = `
+            <p><strong>बोली गई ऑडियो:</strong> <em>"${rawSpeech}"</em></p>
+            <p style="margin-top:4px;"><strong>पहचाना गया विषय:</strong> <span style="color:#7c3aed; font-weight:800;">${detectedCategory}</span></p>
+            <p><strong>विभाग:</strong> ${targetDept}</p>
+            <p><strong>जारी टोकन आईडी:</strong> <strong style="color:#b91c1c;">${ticketId}</strong></p>
+            <div style="background:#f0fdf4; border:1px solid #86efac; padding:6px; border-radius:6px; margin-top:4px; color:#14532d;">
+              ✅ सरकारी पोर्टल व Google Sheets में टिकट ऑटो-सिंक हो गया है।
+            </div>
+          `;
+        }
+
+        grievanceList.unshift({
+          id: ticketId,
+          date: today,
+          farmer: "वॉयस नागरिक (देहाती कॉलर)",
+          village: "दनकौर / ग्रेटर नोएडा",
+          phone: loggedUserPhone,
+          category: detectedCategory,
+          dept: targetDept,
+          status: "दर्ज (वॉयस AI टिकट)",
+          details: rawSpeech
+        });
+        renderGrievanceTable();
+
+        if ('speechSynthesis' in window) {
+          const replyText = `राम-राम भाई! आपकी शिकायत दर्ज कर ली गई है। आपका टोकन नंबर है ${ticketId.replace(/-/g, ' ')}।`;
+          const utterance = new SpeechSynthesisUtterance(replyText);
+          utterance.lang = 'hi-IN';
+          window.speechSynthesis.speak(utterance);
+        }
+      };
+
+      recognizer.onerror = () => {
+        btn?.classList.remove('active');
+        if (statusText) statusText.innerText = "यहाँ दबाकर बोलना शुरू करें...";
+      };
+
+      recognizer.onend = () => {
+        btn?.classList.remove('active');
+        if (statusText) statusText.innerText = "यहाँ दबाकर बोलना शुरू करें...";
+      };
+
+      recognizer.start();
+    }
+
+    // LAND RECORD & CADASTRAL MAPPING
+    let currentLandData = {
+      khasra: "412/1",
+      khata: "00184",
+      owner: "रामेश्वर दयाल पुत्र चेतराम",
+      village: "दनकौर, तहसील दादरी (ग्रेटर नोएडा)",
+      areaHect: "0.8450",
+      areaBigha: "3.34 बीघा",
+      crop: "कृषि भूमि (हरी मटर / रबी)"
+    };
+
+    function handleLandSearch(e) {
+      e.preventDefault();
+      const kVal = document.getElementById('landKhasraInput')?.value?.trim() || "412/1";
+      if (kVal === "218/3") {
+        loadPlotToMap("218/3", "सतपाल सिंह पुत्र हरपाल", "1.2200", "4.82 बीघा");
+      } else if (kVal === "105/2") {
+        loadPlotToMap("105/2", "राजेश चौधरी पुत्र मुंशीराम", "0.6150", "2.43 बीघा");
+      } else {
+        loadPlotToMap(kVal, "रामेश्वर दयाल पुत्र चेतराम", "0.8450", "3.34 बीघा");
+      }
+      alert(`✅ खसरा संख्या ${kVal} का भूलेख रिकॉर्ड व नक्शा लोड हो गया है।`);
+    }
+
+    function loadPlotToMap(khasra, owner, areaHect, areaBigha) {
+      currentLandData.khasra = khasra;
+      currentLandData.owner = owner;
+      currentLandData.areaHect = areaHect;
+      currentLandData.areaBigha = areaBigha;
+
+      document.getElementById('dispKhasra').innerText = khasra;
+      document.getElementById('dispOwner').innerText = owner;
+      document.getElementById('dispArea').innerText = `${areaHect} हेक्टेयर (${areaBigha})`;
+
+      document.getElementById('mapKhasraNum').innerText = "गाटा: " + khasra;
+      document.getElementById('mapAreaNum').innerText = areaHect + " Hect";
+    }
+
+    function openLandRecordModal() {
+      document.getElementById('recLandKhasra').innerText = currentLandData.khasra;
+      document.getElementById('recLandOwner').innerText = currentLandData.owner;
+      document.getElementById('recLandArea').innerText = `${currentLandData.areaHect} हेक्टेयर (${currentLandData.areaBigha})`;
+      document.getElementById('recLandCrop').innerText = currentLandData.crop;
+      document.getElementById('landRecordModal').style.display = 'flex';
+    }
+    function closeLandRecordModal() { document.getElementById('landRecordModal').style.display = 'none'; }
+
+    // GOVERNMENT GRIEVANCE SYSTEM
+    let grievanceList = [
+      {
+        id: "GRV-2026-UP449",
+        date: "03/09/2026",
+        farmer: "सतपाल सिंह",
+        village: "दादरी मंडी क्षेत्र",
+        phone: "+91 9872012345",
+        category: "मंडी में अवैध वसूली व अधिक कटौती",
+        dept: "मंडी परिषद व उपभोक्ता मामले",
+        status: "जांच अधिकारी नियुक्त",
+        details: "मंडी गेट पर प्रति ट्रॉली ₹200 की अवैध पर्ची वसूली और 2% अतिरिक्त दलाली मांगी जा रही है।"
+      }
+    ];
+
+    function previewGrievancePhoto(input) {
+      const prev = document.getElementById('grvPhotoLocalPreview');
+      if (input && input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          if (prev) {
+            prev.src = e.target.result;
+            prev.style.display = 'block';
+          }
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function renderGrievanceTable() {
+      const tb = document.getElementById('grvTableBody');
+      if (!tb) return;
+      tb.innerHTML = '';
+      grievanceList.forEach(g => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong style="color:#b91c1c;">${g.id}</strong></td>
+          <td><small>${g.date}</small></td>
+          <td>${g.farmer}<br><small>📍 ${g.village}</small></td>
+          <td><span class="badge-grievance">${g.category}</span></td>
+          <td><span style="color:#16a34a; font-weight:700;"><i class="fa-solid fa-circle-check"></i> संलग्न</span></td>
+          <td>${g.dept}</td>
+          <td><span class="badge-status badge-live" style="background:#fef3c7; color:#854d0e; border-color:#fde047;">${g.status}</span></td>
+          <td><button class="btn btn-sm btn-action-slip" onclick="openGrievanceSlipView('${g.id}')">पावती</button></td>
+        `;
+        tb.appendChild(tr);
+      });
+    }
+
+    function handleGrievanceSubmit(e) {
+      e.preventDefault();
+      const cat = document.getElementById('grvCategory')?.value;
+      const farmer = document.getElementById('grvFarmerName')?.value?.trim() || "किसान";
+      const village = document.getElementById('grvVillage')?.value?.trim() || "गाँव";
+      const desc = document.getElementById('grvDescription')?.value?.trim() || "";
+      
+      const newId = "GRV-2026-UP" + Math.floor(100 + Math.random() * 900);
+      const today = new Date().toLocaleDateString('hi-IN');
+
+      grievanceList.unshift({
+        id: newId,
+        date: today,
+        farmer: farmer,
+        village: village,
+        phone: loggedUserPhone,
+        category: cat,
+        dept: "जिला कृषि एवं मंडी प्रशासन",
+        status: "दर्ज (नोडल सेल को अग्रेषित)",
+        details: desc
+      });
+
+      renderGrievanceTable();
+      openGrievanceSlipView(newId);
+      e.target.reset();
+      const prev = document.getElementById('grvPhotoLocalPreview');
+      if (prev) prev.style.display = 'none';
+    }
+
+    function openGrievanceSlipView(id) {
+      const g = grievanceList.find(x => x.id === id);
+      if (!g) return;
+      document.getElementById('grvSlipId').innerText = g.id;
+      document.getElementById('grvSlipDate').innerText = g.date;
+      document.getElementById('grvSlipFarmer').innerText = g.farmer + " (" + g.phone + ")";
+      document.getElementById('grvSlipLoc').innerText = g.village;
+      document.getElementById('grvSlipCategory').innerText = g.category;
+      document.getElementById('grvSlipDetails').innerText = g.details;
+      document.getElementById('grievanceSlipModal').style.display = 'flex';
+    }
+    function closeGrievanceSlipModal() { document.getElementById('grievanceSlipModal').style.display = 'none'; }
+
+    // PRESCRIPTION SLIP
+    function generateSlip(type) {
+      document.getElementById('slipDate').innerText = new Date().toLocaleString('hi-IN');
+      document.getElementById('slipFarmer').innerText = loggedUserPhone;
+      if (type === 'soil') {
+        document.getElementById('slipDiagType').innerText = "मिट्टी नमी व सिंचाई जांच";
+        document.getElementById('slipCondition').innerText = "88% उच्च नमी (बारिश जनित)";
+        document.getElementById('slipPrescription').innerText = "बारिश के कारण खेत में अत्यधिक नमी है। सिंचाई बिल्कुल न करें।";
+      } else {
+        document.getElementById('slipDiagType').innerText = "पत्ती रोग जांच";
+        document.getElementById('slipCondition').innerText = "पाउडरी मिल्ड्यू (चूर्णिल आसिता)";
+        document.getElementById('slipPrescription').innerText = "सल्फर 80% WP (2 g/L पानी) स्प्रे करें।";
+      }
+      document.getElementById('slipModal').style.display = 'flex';
+    }
+    function closeSlipModal() { document.getElementById('slipModal').style.display = 'none'; }
+
+    function analyzeSoil(input) {
+      if (input && input.files && input.files[0]) {
+        const r = new FileReader();
+        r.onload = e => {
+          const img = document.getElementById('imgSoilPreview');
+          if (img) { img.src = e.target.result; img.style.display = 'block'; }
+        };
+        r.readAsDataURL(input.files[0]);
+      }
+    }
+    function analyzeLeaf(input) {
+      if (input && input.files && input.files[0]) {
+        const r = new FileReader();
+        r.onload = e => {
+          const img = document.getElementById('imgLeafPreview');
+          if (img) { img.src = e.target.result; img.style.display = 'block'; }
+        };
+        r.readAsDataURL(input.files[0]);
+      }
+    }
+
+    // VOICE ENGINE
+    function triggerVoiceInput() {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) return alert("ब्राउज़र में वॉइस इनपुट सपोर्ट नहीं है।");
+      const r = new SR();
+      r.lang = 'hi-IN';
+      r.onstart = () => document.getElementById('btnMic')?.classList.add('active');
+      r.onresult = e => {
+        const inp = document.getElementById('chatInput');
+        if (inp) inp.value = e.results[0][0].transcript;
+        sendChatMessage();
+      };
+      r.onerror = () => document.getElementById('btnMic')?.classList.remove('active');
+      r.onend = () => document.getElementById('btnMic')?.classList.remove('active');
+      r.start();
+    }
+
+    function sendChatMessage() {
+      const inp = document.getElementById('chatInput');
+      const val = inp?.value?.trim();
+      if (!val) return;
+      const ca = document.getElementById('chatArea');
+      if (ca) {
+        ca.innerHTML += `<div class="chat-bubble chat-user">${val}</div>`;
+        inp.value = '';
+        setTimeout(() => {
+          ca.innerHTML += `<div class="chat-bubble chat-bot">🌾 आप टैब 2 पर जाकर देहाती बोली में बोलकर शिकायत दर्ज कर सकते हैं या टैब 3 में खसरा नक्शा देख सकते हैं।</div>`;
+          ca.scrollTop = ca.scrollHeight;
+        }, 200);
+      }
+    }
+
+    window.onload = () => {
+      renderMarketGrid();
+      renderGrievanceTable();
+    };
+  </script>
+</body>
+</html>
